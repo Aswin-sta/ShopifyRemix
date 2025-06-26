@@ -1,0 +1,581 @@
+{% schema %}
+{
+  "name": "Custom Amount Input",
+  "target": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "label",
+      "label": "Input Label",
+      "default": "Custom Amount"
+    },
+    {
+      "type": "product",
+      "id": "giftboxproduct",
+      "label": "Gift Box Product"
+    }
+  ],
+  "enabled_on": {
+    "templates": ["product"]
+  }
+}
+{% endschema %}
+
+<style>
+  .gift-card-options {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 10px;
+  }
+
+  button.loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .loader {
+    width: 16px;
+    height: 16px;
+    border: 5px solid #FFF;
+    border-bottom-color: transparent;
+    border-radius: 50%;
+    display: inline-block;
+    box-sizing: border-box;
+    animation: rotation 1s linear infinite;
+  }
+
+  @keyframes rotation {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  .gift-card-type {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+  }
+
+  .type-btn {
+    flex: 1;
+    min-width: 120px;
+    padding: 12px 8px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background: white;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: center;
+    transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.2s ease;
+  }
+
+  .type-btn:hover {
+    background: #f5f5f5;
+    transform: scale(1.02);
+  }
+
+  .type-btn.active {
+    background: black;
+    color: white;
+    border-color: black;
+  }
+
+  .giftbox-product {
+    margin: 20px 0;
+    padding: 15px 15px 5px 15px;
+    border: 1px solid #f0f0f0;
+    border-radius: 10px;
+    display: none;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    background-color: #fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  }
+
+  .giftbox-product.visible {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .giftbox-content {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .giftbox-image {
+    width: 80px;
+    height: 80px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: #f8f8f8;
+  }
+
+  .giftbox-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .giftbox-badge {
+    display: inline-block;
+    background-color: #00c365;
+    color: #fff;
+    font-size: 9px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    margin-left: 10px;
+    vertical-align: middle;
+  }
+
+  .giftbox-title {
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #333;
+  }
+
+  .giftbox-price {
+    font-size: 12px;
+    font-weight: bold;
+    color: #111;
+  }
+
+  .giftbox-header {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+   grid-column: 1 / -1;
+  }
+
+
+  .giftbox-description {
+    grid-column: 2 / -1;
+    font-size: 13px;
+    color: #666;
+    padding-top: 10px;
+    line-height: 1.4;
+  }
+
+  .custom-amount-input {
+    margin: 25px 0;
+  }
+
+  .custom-amount-input label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+  }
+
+  #custom-amount-input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    background: #fafafa;
+  }
+
+  .amount-range {
+    font-size: 12px;
+    color: #555;
+    font-style: italic;
+    margin-top: 6px;
+    padding-left: 2px;
+    line-height: 1.4;
+  }
+  
+
+  @media (max-width: 480px) {
+    .type-btn {
+      min-width: calc(50% - 5px);
+      font-size: 13px;
+      padding: 10px 6px;
+    }
+
+    .giftbox-content {
+      grid-template-columns: 65px 1fr;
+      gap: 8px;
+    }
+
+    .giftbox-image {
+      width: 65px;
+      height: 65px;
+    }
+
+    .giftbox-title {
+      font-size: 10px;
+    }
+
+    .giftbox-price {
+      font-size: 10px;
+    }
+
+    .giftbox-description {
+      font-size: 9.16px;
+    }
+
+    .giftbox-product {
+      padding: 12px;
+    }
+
+    #custom-amount-input {
+      font-size: 13px;
+      padding: 10px;
+    }
+
+    .custom-amount-input label {
+      font-size: 13px;
+    }
+  }
+</style>
+
+
+{% if product.type == 'giftcard' or product.template_suffix == 'giftcard' %}
+  {% assign gift_card_settings = shop.metafields.gift_card_settings %}
+  {% assign min_price = gift_card_settings.min_price.value | default: 100 %}
+  {% assign max_price = gift_card_settings.max_price.value | default: 1000 %}
+  {% assign digital_enabled = gift_card_settings.digital_enabled.value | default: false %}
+  {% assign physical_enabled = gift_card_settings.physical_enabled.value | default: false %}
+  {% assign physical_giftbox_enabled = gift_card_settings.physical_giftbox_enabled.value | default: false %}
+  {% comment %} {% if physical_giftbox_enabled and gift_card_settings.selected_product.value %} {% endcomment %}
+    {% assign giftbox = all_products[gift_card_settings.selected_product.value.handle] %}
+  {% comment %} {% endif %}
+   {% endcomment %}
+  <div class="gift-card-options">
+    <!-- Gift Card Type Buttons -->
+    <div class="gift-card-type">
+      {% if digital_enabled %}
+        <button class="type-btn active" data-type="digital">Digital</button>
+      {% endif %}
+      {% if physical_enabled %}
+        <button class="type-btn" data-type="physical">Physical</button>
+      {% endif %}
+      {% if giftbox != blank and physical_giftbox_enabled %}
+        <button class="type-btn" data-type="physical-giftbox">Physical + Giftbox</button>
+      {% endif %}
+    </div>
+
+    <!-- Giftbox Preview -->
+    {% if giftbox != blank %}
+      <div id="giftbox-product" class="giftbox-product">
+        <div class="giftbox-content">
+          <div class="giftbox-header"> Gift card exclusive offer
+            <span class="giftbox-badge">popular</span></div>
+          <div class="giftbox-image">
+            {{ giftbox.featured_image | image_url: width: 300 | image_tag: alt: giftbox.title }}
+          </div>
+          <div class="giftbox-description">
+            {{ giftbox.description | strip_html }}
+          </div>
+         
+          <div class="giftbox-price">
+            {{ giftbox.price | money }}
+          </div>
+          <div class="giftbox-title">
+            {{ giftbox.title }}
+          </div>
+        </div>
+      </div>
+    {% endif %}
+
+    <!-- Custom Amount Input -->
+    <div class="custom-amount-input">
+      <label for="custom-amount-input">{{ block.settings.label | default: 'Enter custom amount' }}</label>
+      <input 
+        id="custom-amount-input"
+        type="number"
+        min="{{ min_price }}"
+        max="{{ max_price }}"
+        step="1"
+        placeholder="Enter custom amount"
+        name="properties[Custom Amount]"
+      >
+        <div class="amount-range">
+          Min: {{ min_price }} – Max: {{ max_price }}
+        </div>
+        
+    </div>
+
+    <input type="hidden" id="giftcard-type-hidden" name="properties[_type]" value="digital">
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const input = document.getElementById('custom-amount-input');
+      const typeButtons = document.querySelectorAll('.type-btn');
+      const giftBoxProduct = document.getElementById('giftbox-product');
+      const giftcardTypeInput = document.getElementById('giftcard-type-hidden');
+      const amountRange = document.querySelector('.amount-range');
+
+      // Initialize type buttons
+      typeButtons.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          typeButtons.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          const newType = btn.dataset.type;
+          giftcardTypeInput.value = newType;
+          
+          if (giftBoxProduct) {
+            giftBoxProduct.classList.toggle('visible', newType === 'physical-giftbox');
+          }
+        });
+      });
+
+      // Validate input amount
+      if (input) {
+        input.addEventListener('change', (e) => {
+          let value = parseFloat(e.target.value);
+          const min = parseFloat(e.target.min);
+          const max = parseFloat(e.target.max);
+          
+          if (isNaN(value)) {
+            e.target.value = '';
+            return;
+          }
+          
+          if (value < min) {
+            value = min;
+          } else if (value > max) {
+            value = max;
+          }
+          
+          e.target.value = value.toFixed(0); // Remove decimals since step="1"
+        });
+      }
+
+      // Setup cart functionality
+      let isProcessing = false;
+      
+      const getAmount = () => {
+        const entered = parseFloat(input?.value || '');
+        if (!isNaN(entered) && entered > 0) return entered;
+        const wrapper = document.querySelector('variant-selects, .variant-selects');
+        const selected = wrapper.querySelector('select')?.selectedOptions[0]?.value || 
+                         document.querySelector('.variant-picker input:checked')?.value;
+
+                         console.log("Selected",selected)
+        return parseFloat(selected) || 0;
+      };
+    
+      const getQuantity = () => {
+        const qtyInput = document.querySelector('input[name="quantity"]');
+        return qtyInput ? Math.max(1, parseInt(qtyInput.value, 10)) : 1;
+      };
+    
+      const prepareButton = (button) => {
+        const original = button.innerHTML;
+        button.disabled = true;
+        button.classList.add('loading');
+        button.innerHTML = `<span class="loader"></span>`;
+        return original;
+      };
+    
+      const restoreButton = (button, html) => {
+        button.disabled = false;
+        button.classList.remove('loading');
+        button.innerHTML = html;
+      };
+    
+      const createGiftCardVariant = async (amount, type) => {
+        const res = await fetch(`/apps/gift-card`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ amount: amount.toFixed(2), type })
+        });
+        if (!res.ok) throw new Error('Variant creation failed');
+        const data = await res.json();
+        return data.variant?.id?.split('/').pop();
+      };
+    
+      const preloadProductVariant = async (variantId) => {
+        await fetch(`/products/{{ product.handle }}?variant=${variantId}`);
+      };
+    
+      const addToCart = async (variantId, quantity, type) => {
+        const items = [{
+          id: variantId,
+          quantity,
+          properties: { "_type": type === 'physical' ? "physical" : "digital" }
+        }];
+    
+        {% if giftbox %}
+        if (type === "physical-giftbox") {
+          items.push({
+            id: {{ giftbox.variants.first.id }},
+            quantity: 1,
+            properties: { "_giftbox": "true", "Gift Box": {{ giftbox.title | json }} }
+          });
+        }
+        {% endif %}
+    
+        const res = await fetch('/cart/add.js', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            items,
+            sections: ['cart-notification-product', 'cart-notification-button', 'cart-icon-bubble'],
+            sections_url: window.location.pathname
+          })
+        });
+        return res.ok ? await res.json() : Promise.reject('Cart update failed');
+      };
+    
+      const updateCartNotification = (sectionsHTML) => {
+        const updateSection = (id, html) => {
+          const container = document.getElementById(id);
+          if (container && html) container.innerHTML = html;
+        };
+
+       if (sectionsHTML.sections?.['cart-notification-product']) {
+          const container = document.getElementById('cart-notification-product');
+          if (container) {
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = sectionsHTML.sections['cart-notification-product'];
+            const newItem = tempDiv.querySelector('.cart-item');
+            if (newItem) {
+              container.innerHTML = '';
+              container.appendChild(newItem);
+            }
+          }
+        }
+        updateSection('cart-notification-button', sectionsHTML.sections?.['cart-notification-button']);
+        
+        updateSection('cart-icon-bubble', sectionsHTML.sections?.['cart-icon-bubble']);
+
+      };
+    
+      const showCartNotification = () => {
+        setTimeout(() => {
+          const notification = document.querySelector('cart-notification, .cart-notification');
+          if (notification) {
+            notification.open?.() || (notification.classList.add('open'), notification.style.display = 'block');
+          }
+        }, 100);
+      };
+    
+      const runHorizonAnimations = (button) => {
+        button.classList.add('atc-added');
+        setTimeout(() => button.classList.remove('atc-added'), 2000);
+        
+        const cartIcon = document.querySelector('.header-actions__cart-icon');
+        if (cartIcon) {
+          const flyToCartElement = document.createElement('fly-to-cart');
+          const productImage = document.querySelector('add-to-cart-component')?.dataset?.productVariantMedia;
+          if (productImage) {
+            flyToCartElement.style.setProperty('background-image', `url(${productImage})`);
+            flyToCartElement.source = button;
+            flyToCartElement.destination = cartIcon;
+            document.body.appendChild(flyToCartElement);
+          }
+        }
+      };
+    
+      const runDawnAnimations = (button) => {
+        button.classList.add('atc-pulse');
+        setTimeout(() => button.classList.remove('atc-pulse'), 1000);
+      };
+    
+      const setupHorizon = () => {
+        const addToCartButton = document.querySelector('add-to-cart-component[ref="addToCartButtonContainer"] button[type="submit"]');
+        if (!addToCartButton) return false;
+    
+        addToCartButton.removeAttribute('onclick');
+        addToCartButton.removeAttribute('on:click');
+        addToCartButton.addEventListener('click', async (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          if (isProcessing) return;
+    
+          isProcessing = true;
+          const amount = getAmount();
+          const quantity = getQuantity();
+          const originalHTML = prepareButton(addToCartButton);
+    
+          try {
+            const finalType = giftcardTypeInput.value === "physical-giftbox" ? "physical" : giftcardTypeInput.value;
+            const variantId = await createGiftCardVariant(amount, finalType);
+            if (!variantId) throw new Error('Invalid variant ID');
+    
+            await preloadProductVariant(variantId);
+            await new Promise(res => setTimeout(res, 500));
+    
+            const sectionsHTML = await addToCart(variantId, quantity, giftcardTypeInput.value);
+            updateCartNotification(sectionsHTML);
+            showCartNotification();
+            runHorizonAnimations(addToCartButton);
+          } catch (err) {
+            console.error('Error:', err);
+            alert('Could not add gift card to cart');
+          } finally {
+            restoreButton(addToCartButton, originalHTML);
+            isProcessing = false;
+          }
+        });
+        return true;
+      };
+    
+      const setupDawn = () => {
+        if (document.querySelector('add-to-cart-component[ref="addToCartButtonContainer"]')) return false;
+    
+        document.addEventListener('submit', async (e) => {
+          const form = e.target;
+          if (!form.matches('form[action*="/cart/add"]')) return;
+          
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          if (isProcessing) return;
+    
+          const submitButton = form.querySelector('[type="submit"], .product-form__submit');
+          if (!submitButton) return;
+    
+          isProcessing = true;
+          const amount = getAmount();
+          const quantity = getQuantity();
+          const originalHTML = prepareButton(submitButton);
+    
+          try {
+            const finalType = giftcardTypeInput.value === "physical-giftbox" ? "physical" : giftcardTypeInput.value;
+            const variantId = await createGiftCardVariant(amount, finalType);
+            if (!variantId) throw new Error('Invalid variant ID');
+    
+            await preloadProductVariant(variantId);
+            await new Promise(res => setTimeout(res, 500));
+    
+            const sectionsHTML = await addToCart(variantId, quantity, giftcardTypeInput.value);
+            updateCartNotification(sectionsHTML);
+            showCartNotification();
+            runDawnAnimations(submitButton);
+          } catch (err) {
+            console.error('Error:', err);
+            alert('Could not add gift card to cart');
+          } finally {
+            restoreButton(submitButton, originalHTML);
+            isProcessing = false;
+          }
+        }, { capture: true });
+        return true;
+      };
+    
+      if (!setupHorizon()) {
+        setupDawn();
+      }
+    });
+  </script>
+{% endif %}
