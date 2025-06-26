@@ -1,0 +1,80 @@
+{% schema %}
+{
+  "name": "Hide Custom Gift Cards",
+  "target": "body",
+  "settings": []
+}
+{% endschema %}
+
+{% liquid
+    if request.path contains '/products/custom-gift-card-'
+    echo '<style>html,body{display:none!important;visibility:hidden!important;}</style>'
+    echo '<script>window.stop();window.location.replace("/products/gift-card");</script>'
+    echo '<noscript><meta http-equiv="refresh" content="0; url=/products/gift-card"></noscript>'
+    endif
+  %}
+  
+<style>
+  {% unless request.page_type == 'cart' or request.page_type == 'checkout' or request.page_type == 'order_status' %}
+    li.predictive-search__list-item a[href*="/products/custom-gift-card-"],
+    li.predictive-search__list-item:has(a[href*="/products/custom-gift-card-"]),
+    .grid__item a[href*="/products/custom-gift-card-"],
+    li.grid__item:has(a[href*="/products/custom-gift-card-"]) {
+      display: none !important;
+    }
+  {% endunless %}
+</style>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    
+    if (!window.location.pathname.match(/(cart|checkout|order|account)/i)) {
+
+     const hiddensearchlength= document.querySelectorAll('li.predictive-search__list-item').forEach(item => {
+        if (item.querySelector('a[href*="/products/custom-gift-card-"]')) {
+          item.style.display = 'none';
+        }
+      });
+
+      document.querySelectorAll('li.grid__item').forEach(item => {
+        if (item.querySelector('a[href*="/products/custom-gift-card-"]')) {
+          item.style.display = 'none';
+        }
+      });
+
+
+      document.querySelectorAll('[class^="product-card-template--"]').forEach(item => {
+        const link = item.querySelector('a[href*="/products/custom-gift-card-"]');
+        if (link) {
+          item.style.display = 'none';
+        }
+      });
+    }
+  });
+
+  const observer = new MutationObserver(function(mutations) {
+    if (!window.location.pathname.match(/(cart|checkout|order|account)/i)) {
+      mutations.forEach(mutation => {
+        mutation.addedNodes.forEach(node => {
+          if (node.nodeType === 1) {
+            if (node.matches && node.matches('li.predictive-search__list-item')) {
+              if (node.querySelector('a[href*="/products/custom-gift-card-"]')) {
+                node.style.display = 'none';
+              }
+            }
+            if (node.querySelectorAll) {
+              node.querySelectorAll('li.predictive-search__list-item a[href*="/products/custom-gift-card-"]').forEach(link => {
+                const item = link.closest('.predictive-search__list-item');
+                if (item) {
+                  item.style.display = 'none';
+                }
+              });
+            }
+          }
+        });
+      });
+    }
+  });
+
+  observer.observe(document.body, { childList: true, subtree: true });
+</script>
